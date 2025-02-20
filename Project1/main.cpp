@@ -25,6 +25,7 @@ sf::Font font("fonts/pixel_font.ttf");
 sf::Text title(font);
 
 // Function Declaration
+float calc_time_span(const std::chrono::time_point<std::chrono::high_resolution_clock>& start);
 int show_menu(const std::vector<std::string>& avail_algos);
 std::vector<int> randomVec(const int size, const float maxHeight);
 void draw_vec(sf::RenderWindow& window, const std::vector<int>& nums, const int hgt_idx);
@@ -33,39 +34,44 @@ void draw_vec(sf::RenderWindow& window, const std::vector<int>& nums, const int 
 class Merge_Sort {
 private:
 	static void merge(int st, int mid, int end, std::vector<int>& nums, sf::RenderWindow& window) {
-		std::vector<int> temp;
+		static std::vector<int> temp(nums.size());
 		int i = st;
 		int j = mid + 1;
+		int t = st;
 		while (i <= mid && j <= end) {
 			if (nums.at(i) < nums.at(j)) {
-				temp.push_back(nums.at(i));
+				temp.at(t) = nums.at(i);
 				i++;
+				t++;
 			}
 			else {
-				temp.push_back(nums.at(j));
+				temp.at(t) = nums.at(j);
 				j++;
+				t++;
 			}
 		}
 		while (i <= mid) {
-			temp.push_back(nums.at(i));
+			temp.at(t) = nums.at(i);
 			i++;
+			t++;
 		}
 		while (j <= end) {
-			temp.push_back(nums.at(j));
+			temp.at(t) = nums.at(j);
 			j++;
+			t++;
 		}
 		for (int k = st; k <= end; k++) {
 			window.clear(bgCol);
 			window.draw(title);
 			draw_vec(window, nums, k);
 			window.display();
-			nums.at(k) = temp.at(k - st);
+			nums.at(k) = temp.at(k);
 		}
 	}
 public:
 	static void merge_sort(int st, int end, std::vector<int>& nums, sf::RenderWindow& window) {
 		if (st < end) {
-			int mid = (st + end) / 2;
+			int mid = st + (end - st) / 2;
 			merge_sort(st, mid, nums, window);
 			merge_sort(mid + 1, end, nums, window);
 			merge(st, mid, end, nums, window);
@@ -100,13 +106,12 @@ public:
 	}
 };
 
-
 // Insertion Sort
 class Insertion_Sort {
 public:
 	static void insertion_sort(std::vector<int>& nums, sf::RenderWindow& window) {
 		for (int i = 1; i < nums.size(); i++) {
-			float key = nums.at(i);
+			int key = nums.at(i);
 			int j = i - 1;
 			while (j >= 0 && key < nums.at(j)) {
 				nums.at(j + 1) = nums.at(j);
@@ -152,10 +157,47 @@ public:
 	}
 };
 
-// Buuble Sort
+// Bubble Sort
 class Bubble_Sort {
 public:
-	static void bubble_sort()
+	static void bubble_sort(std::vector<int>& nums, sf::RenderWindow& window) {
+		for (int i = 0; i < nums.size(); i++) {
+			for (int j = 0; j < nums.size() - i - 1; j++) {
+				if (nums.at(j) > nums.at(j + 1)) {
+					std::swap(nums.at(j), nums.at(j + 1));
+				}
+				window.clear(bgCol);
+				window.draw(title);
+				draw_vec(window, nums, j);
+				window.display();
+			}
+		}
+	}
+};
+
+// Selection Sort
+class Selection_Sort {
+private:
+	static int min_elm_idx(const int st, const std::vector<int>& nums) {
+		int idx = st;
+		for (int i = st; i < nums.size(); i++) {
+			if (nums.at(i) < nums.at(idx)) {
+				idx = i;
+			}
+		}
+		return idx;
+	}
+public:
+	static void selection_sort(std::vector<int>& nums, sf::RenderWindow& window) {
+		for (int i = 0; i < nums.size(); i++) {
+			int min_idx = min_elm_idx(i, nums);
+			std::swap(nums.at(i), nums.at(min_idx));
+			window.clear(bgCol);
+			window.draw(title);
+			draw_vec(window, nums, i);
+			window.display();
+		}
+	}
 };
 
 // Main Function
@@ -167,7 +209,7 @@ int main() {
 	std::vector<int> nums = randomVec(size_of_nums, windowSize.y / 1.25f);
 
 	// Init Available Algos
-	std::vector<std::string> avail_algos = { "Merge Sort" , "Quick Sort", "Insertion Sort", "Count Sort"};
+	std::vector<std::string> avail_algos = { "Merge Sort" , "Quick Sort", "Insertion Sort", "Count Sort", "Bubble Sort", "Selection Sort" };
 
 	// Menu
 	int choice = show_menu(avail_algos);
@@ -178,45 +220,66 @@ int main() {
 
 	// Main loop
 	while (window.isOpen()) {
-		auto start = std::chrono::high_resolution_clock::now();
+		std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 		switch (choice) {
 		case 1:
 			title.setString(avail_algos.at(0));
 			title.setCharacterSize(title_ch_size);
 			Merge_Sort::merge_sort(0, size_of_nums - 1, nums, window);
+			std::cout << calc_time_span(start) << "s" << std::endl;
 			break;
 		case 2:
 			title.setString(avail_algos.at(1));
 			title.setCharacterSize(title_ch_size);
 			Quick_Sort::quick_sort(0, size_of_nums - 1, nums, window);
+			std::cout << calc_time_span(start) << "s" << std::endl;
 			break;
 		case 3:
 			title.setString(avail_algos.at(2));
 			title.setCharacterSize(title_ch_size);
 			Insertion_Sort::insertion_sort(nums, window);
+			std::cout << calc_time_span(start) << "s" << std::endl;
 			break;
 		case 4:
 			title.setString(avail_algos.at(3));
 			title.setCharacterSize(title_ch_size);
 			Count_Sort::count_sort(nums, window);
+			std::cout << calc_time_span(start) << "s" << std::endl;
+			break;
+		case 5:
+			title.setString(avail_algos.at(4));
+			title.setCharacterSize(title_ch_size);
+			Bubble_Sort::bubble_sort(nums, window);
+			std::cout << calc_time_span(start) << "s" << std::endl;
+			break;
+		case 6:
+			title.setString(avail_algos.at(5));
+			title.setCharacterSize(title_ch_size);
+			Selection_Sort::selection_sort(nums, window);
+			std::cout << calc_time_span(start) << "s" << std::endl;
 			break;
 		default:
 			break;
 		}
-		auto end = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-		std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
+
 		window.close();
 	}
 
 	return 0;
 }
 
+// Calculate the time spanned
+float calc_time_span(const std::chrono::time_point<std::chrono::high_resolution_clock>& start) {
+	std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+	std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	return duration.count() / 1000.0;
+}
+
 // Display Menu
 int show_menu(const std::vector<std::string>& avail_algos) {
 	std::cout << "> Menu:" << std::endl;
 	for (int i = 0; i < avail_algos.size(); i++) {
-		std::cout << '\t' << i + 1 << ": " << avail_algos.at(i) << std::endl;
+		std::cout << ' ' << i + 1 << ": " << avail_algos.at(i) << std::endl;
 	}
 	int choice;
 	std::cout << "Which algo you wanna watch: ";
@@ -242,7 +305,7 @@ void draw_vec(sf::RenderWindow& window, const std::vector<int>& nums, const int 
 	static float width_of_bar = windowSize.x / static_cast<float>(nums.size());
 	for (int i = 0; i < nums.size(); i++) {
 		bar.setSize({ width_of_bar, static_cast<float>(nums.at(i)) });
-		bar.setPosition({ i * width_of_bar, static_cast<float>(windowSize.y -nums.at(i)) });
+		bar.setPosition({ i * width_of_bar, static_cast<float>(windowSize.y - nums.at(i)) });
 		bar.setFillColor((i == hgt_idx) ? hgtBarCol : barCol);
 		window.draw(bar);
 	}

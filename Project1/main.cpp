@@ -8,10 +8,10 @@
 #include <SFML/Graphics.hpp>
 
 // Colors
-const sf::Color bgCol({ 6, 57, 77 });
-const sf::Color barCol({ 234, 161, 9 });
-const sf::Color hgtBarCol({ 202, 11, 11 });
-const sf::Color textCol({ 250, 218, 193 });
+const sf::Color bgCol({ 42, 54, 59 });
+const sf::Color barCol({ 153, 184, 152 });
+const sf::Color hgtBarCol({ 232, 74, 95 });
+const sf::Color textCol({ 254, 206, 171 });
 
 // Sizes
 const sf::Vector2u windowSize({ 990, 540 });
@@ -61,11 +61,11 @@ private:
 			t++;
 		}
 		for (int k = st; k <= end; k++) {
+			nums.at(k) = temp.at(k);
 			window.clear(bgCol);
 			window.draw(title);
 			draw_vec(window, nums, k);
 			window.display();
-			nums.at(k) = temp.at(k);
 		}
 	}
 public:

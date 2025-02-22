@@ -36,23 +36,14 @@ class Merge_Sort {
 private:
 	static void merge(int st, int mid, int end, std::vector<int>& nums, sf::RenderWindow& window) {
 		static std::vector<int> temp(nums.size());
-		int i = st;
-		int j = mid + 1;
-		int t = st;
+		int i = st, j = mid + 1, t = st;
 		while (i <= mid && j <= end) {
-			if (nums[i] < nums[j]) {
-				temp[t++] = nums[i++];
-			}
-			else {
-				temp[t++] = nums[j++];
-			}
+			if (nums[i] < nums[j]) temp[t++] = nums[i++];
+			else temp[t++] = nums[j++];
 		}
-		while (i <= mid) {
-			temp[t++] = nums[i++];
-		}
-		while (j <= end) {
-			temp[t++] = nums[j++];
-		}
+		while (i <= mid) temp[t++] = nums[i++];
+		while (j <= end) temp[t++] = nums[j++];
+
 		for (int k = st; k <= end; k++) {
 			nums[k] = temp[k];
 			manage_events(window);
@@ -126,18 +117,14 @@ class Count_Sort {
 private:
 	static int max_elm(std::vector<int>& nums) {
 		int max_elm = 0;
-		for (int num : nums) {
-			max_elm = std::max(max_elm, num);
-		}
+		for (const int& num : nums) max_elm = std::max(max_elm, num);
 		return max_elm;
 	}
 public:
 	static void count_sort(std::vector<int>& nums, sf::RenderWindow& window) {
 		int max_size = max_elm(nums);
 		std::vector<int> freq(max_size + 1, 0);
-		for (int num : nums) {
-			freq[num]++;
-		}
+		for (const int& num : nums) freq[num]++;
 		int idx = 0;
 		for (int i = 0; i <= max_size; i++) {
 			while (freq[i]) {
@@ -183,7 +170,7 @@ private:
 				manage_events(window);
 				window.clear(bgCol);
 				window.draw(title);
-				draw_vec(window, nums, min_idx);
+				draw_vec(window, nums, std::min(i, min_idx));
 				window.display();
 			}
 		}
@@ -200,17 +187,17 @@ public:
 
 // Main Function
 int main() {
+
+	// Init Available Algos and choice
+	std::vector<std::string> avail_algos = { "Merge Sort" , "Quick Sort", "Insertion Sort", "Count Sort", "Bubble Sort", "Selection Sort" };
+	int choice = show_menu(avail_algos);
+
 	// Init Nums
 	int size_of_nums;
 	std::cout << "> Enter size of array you want to sort: ";
 	std::cin >> size_of_nums;
 	std::vector<int> nums = randomVec(size_of_nums, windowSize.y / 1.25f);
 
-	// Init Available Algos
-	std::vector<std::string> avail_algos = { "Merge Sort" , "Quick Sort", "Insertion Sort", "Count Sort", "Bubble Sort", "Selection Sort" };
-
-	// Menu
-	int choice = show_menu(avail_algos);
 
 	// Window
 	sf::RenderWindow window(sf::VideoMode(windowSize), "Visual Sorting");
@@ -269,9 +256,7 @@ int main() {
 // Manage events
 void manage_events(sf::RenderWindow& window) {
 	while (const std::optional event = window.pollEvent()) {
-		if (event->is<sf::Event::Closed>()) {
-			window.close();
-		}
+		if (event->is<sf::Event::Closed>()) window.close();
 	}
 }
 
@@ -285,9 +270,7 @@ float calc_time_span(const std::chrono::time_point<std::chrono::high_resolution_
 // Display Menu
 int show_menu(const std::vector<std::string>& avail_algos) {
 	std::cout << "> Menu:" << std::endl;
-	for (int i = 0; i < avail_algos.size(); i++) {
-		std::cout << '\t' << i + 1 << ": " << avail_algos[i] << std::endl;
-	}
+	for (int i = 0; i < avail_algos.size(); i++) std::cout << '\t' << i + 1 << ": " << avail_algos[i] << std::endl;
 	int choice;
 	std::cout << "> Which algo you wanna watch: ";
 	std::cin >> choice;
@@ -297,10 +280,7 @@ int show_menu(const std::vector<std::string>& avail_algos) {
 // Generate Random Vector
 std::vector<int> randomVec(const int size, const float maxHeight) {
 	std::vector<int> nums(size);
-	for (int i = 1; i <= size; i++) {
-		nums[i - 1] = static_cast<int>(i * (maxHeight / size));
-	}
-
+	for (int i = 1; i <= size; i++) nums[i - 1] = static_cast<int>(i * (maxHeight / size));
 	std::random_device seed;
 	std::minstd_rand rng(seed());
 	std::shuffle(nums.begin(), nums.end(), rng);
